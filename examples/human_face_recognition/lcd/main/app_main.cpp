@@ -22,7 +22,7 @@ extern "C" void app_main()
 
     register_button(GPIO_BOOT, xQueueKeyState);
     register_camera(PIXFORMAT_RGB565, FRAMESIZE_240X240, 2, xQueueAIFrame);
-    // register_adc_button(buttons, 4, xQueueKeyState);
+    register_adc_button(buttons, 4, xQueueKeyState);
     register_event(xQueueKeyState, xQueueEventLogic);
     register_human_face_recognition(xQueueAIFrame, xQueueEventLogic, NULL, xQueueLCDFrame, false);
     register_lcd(xQueueLCDFrame, NULL, true);

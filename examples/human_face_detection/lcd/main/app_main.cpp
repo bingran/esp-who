@@ -5,8 +5,11 @@
 static QueueHandle_t xQueueAIFrame = NULL;
 static QueueHandle_t xQueueLCDFrame = NULL;
 
+static const char *TAG = "MAIN";
+
 extern "C" void app_main()
 {
+    ESP_LOGI(TAG, "Hello World!");
     xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
     xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 

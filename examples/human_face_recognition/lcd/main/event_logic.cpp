@@ -81,4 +81,5 @@ void register_event(const QueueHandle_t key_state_i, const QueueHandle_t event_o
     xQueueKeyStateI = key_state_i;
     xQueueEventO = event_o;
     xTaskCreatePinnedToCore(event_generate, "event_logic_task", 1024, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore(event_generate_from_adc_button, "event_logic_task", 1024, NULL, 5, NULL, 0);
 }

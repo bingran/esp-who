@@ -15,27 +15,27 @@ static bool gReturnFB = true;
 
 static void task_process_handler(void *arg)
 {
-    camera_fb_t *frame = NULL;
+    // camera_fb_t *frame = NULL;
 
-    while (true)
-    {
-        if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY))
-        {
-            esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
-            if (xQueueFrameO)
-            {
-                xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
-            }
-            else if (gReturnFB)
-            {
-                esp_camera_fb_return(frame);
-            }
-            else
-            {
-                free(frame);
-            }
-        }
-    }
+    // while (true)
+    // {
+    //     if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY))
+    //     {
+    //         esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
+    //         if (xQueueFrameO)
+    //         {
+    //             xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
+    //         }
+    //         else if (gReturnFB)
+    //         {
+    //             esp_camera_fb_return(frame);
+    //         }
+    //         else
+    //         {
+    //             free(frame);
+    //         }
+    //     }
+    // }
 }
 
 esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
