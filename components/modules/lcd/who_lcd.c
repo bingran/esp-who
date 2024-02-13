@@ -15,7 +15,7 @@ static bool gReturnFB = true;
 
 static void task_process_handler(void *arg)
 {
-    // camera_fb_t *frame = NULL;
+    camera_fb_t *frame = NULL;
 
     while (true)
     {
