@@ -76,8 +76,14 @@ static void task(AppButton *self)
 
                     if (self->pressed == BUTTON_MENU)
                     {
-                        self->menu++;
-                        self->menu %= (MENU_MOTION_DETECTION + 1);
+                        if(MENU_FACE_RECOGNITION == self->menu)
+                        {
+                            self->menu = MENU_STOP_WORKING;
+                        }
+                        else
+                        {
+                            self->menu = MENU_FACE_RECOGNITION;
+                        }
                     }
 
                     last_time = backup_time;
@@ -89,6 +95,10 @@ static void task(AppButton *self)
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
+        if(!((MENU_FACE_RECOGNITION == self->menu)&&(MENU_STOP_WORKING == self->menu)))
+        {
+            self->menu = MENU_STOP_WORKING;
+        }
     }
 }
 

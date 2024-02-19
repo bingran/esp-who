@@ -62,7 +62,8 @@ AppFace::AppFace(AppButton *key,
                                                     detector(0.3F, 0.3F, 10, 0.3F),
                                                     detector2(0.4F, 0.3F, 10),
                                                     state(FACE_IDLE),
-                                                    switch_on(false)
+                                                    switch_on(false),
+                                                    gpio_on(false)
 {
 #if CONFIG_MFN_V1
 #if CONFIG_S8
@@ -151,6 +152,7 @@ static void task(AppFace *self)
                 if (detect_results.size())
                 {
                     // print_detection_result(detect_results);
+                    self->gpio_on = true;
                     draw_detection_result((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
                 }
 
@@ -167,12 +169,25 @@ static void task(AppFace *self)
                         {
                             self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
                             // print_detection_result(detect_results);
-                            ESP_LOGD(TAG, "Similarity: %f", self->recognize_result.similarity);
-                            if (self->recognize_result.id > 0)
-                                ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                            ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
+                            if(-1 !=  self->recognize_result.similarity)
+                            {
+                                if ((self->recognize_result.id > 0) && (self->recognize_result.similarity > 0.5))
+                                {
+                                    ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                                }                              
+                                else
+                                    ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                            }
                             else
-                                ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                            {
+                                self->recognize_result.id = 0;
+                            }
                         }
+                    }
+                    else
+                    {
+                        self->recognize_result.id = 0xFF;
                     }
 
                     if (self->state == FACE_DELETE)
@@ -197,8 +212,14 @@ static void task(AppFace *self)
                         break;
 
                     case FACE_RECOGNIZE:
-                        if (self->recognize_result.id > 0)
+                        if(0xFF == self->recognize_result.id)
+                        {
+                             rgb_print(frame, RGB565_MASK_RED, "No face detected!");
+                        }
+                        else if (self->recognize_result.id > 0)
+                        {
                             rgb_printf(frame, RGB565_MASK_GREEN, "ID %d", self->recognize_result.id);
+                        }
                         else
                             rgb_print(frame, RGB565_MASK_RED, "who ?");
                         break;
@@ -221,11 +242,32 @@ static void task(AppFace *self)
                 self->callback(frame);
         }
     }
+
     ESP_LOGD(TAG, "Stop");
     vTaskDelete(NULL);
 }
 
+static void task2(AppFace *self)
+{
+    while(1)
+    {
+        if(true == self->gpio_on)
+        {
+            gpio_set_level(GPIO_NUM_45, 0);
+            ESP_LOGI(TAG, "GPIO45 set to 0");
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            gpio_set_level(GPIO_NUM_45, 1);
+            ESP_LOGI(TAG, "GPIO45 set to 1");
+            self->gpio_on = false;
+        }
+        else
+        {
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+        }
+    }
+}
 void AppFace::run()
 {
     xTaskCreatePinnedToCore((TaskFunction_t)task, TAG, 5 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)task2, TAG, 5 * 1024, this, 5, NULL,0);
 }

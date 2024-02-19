@@ -50,6 +50,8 @@ public:
 
     bool switch_on;
 
+    bool gpio_on;
+
     uint8_t frame_count;
 
     AppFace(AppButton *key,

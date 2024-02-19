@@ -10,6 +10,16 @@
 
 extern "C" void app_main()
 {
+    gpio_config_t gpio_conf;
+    gpio_conf.mode = GPIO_MODE_OUTPUT_OD;
+    gpio_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+
+    gpio_conf.intr_type = GPIO_INTR_DISABLE;
+    gpio_conf.pin_bit_mask = 1LL << GPIO_NUM_45;
+    gpio_config(&gpio_conf);
+
+    gpio_set_level(GPIO_NUM_45, 1);
+
     QueueHandle_t xQueueFrame_0 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame_1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame_2 = xQueueCreate(2, sizeof(camera_fb_t *));
